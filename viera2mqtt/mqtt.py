@@ -1,4 +1,5 @@
 import logging
+import requests
 from pprint import pprint
 
 def msg_stip(value, prefix):
@@ -8,6 +9,16 @@ def send_key(key, tvclient):
     logger = logging.getLogger('sendkey')
     logger.info(f'send {key} to tv.')
     return tvclient.send_key(key)
+
+def check_tv_online(ip):
+    logger = logging.getLogger('tvon')
+    response = requests.get(f'http://{ip}:55000/dmr/ddd.xml')
+    if  len(response.text) == 0:
+        logger.info(f'tv off with status_code {response.status_code}')
+        return False
+    elif len(response.text) > 0 and response.status_code == 200:
+        logger.info(f'tv on with status_code {response.status_code}')
+        return True
 
 
 # The callback for when the client receives a CONNACK response from the server.
@@ -49,3 +60,11 @@ def on_message(client, userdata, msg):
         if actiontype == 'key':    
             send_key(payload, tvclient)
 
+        if actiontype == 'power':
+            key = "NRC_POWER-ONOFF"   
+            if payload == "on":
+                if not check_tv_online(config.tv.address):
+                    send_key(key, tvclient)
+            elif payload == "off":
+                if check_tv_online(config.tv.address):
+                    send_key(key, tvclient)

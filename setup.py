@@ -9,7 +9,8 @@ setup(
         "click>=7.0",
         "panasonic_viera",
         'aiohttp',
-        'paho-mqtt'
+        'paho-mqtt',
+        'requests'
     ],
     extras_require={"test": ["pytest", "pytest-mock"]},
     author="Ernest Czerwonka",

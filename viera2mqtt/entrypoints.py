@@ -91,3 +91,10 @@ def login(ctx):
             ctx.obj['config'].tv.set('id', rc.app_id)
             ctx.obj['config'].tv.set('key', rc.enc_key)
             ctx.obj['config'].write()
+
+
+@cli.command()
+@click.pass_context
+def online(ctx):
+    from .mqtt import check_tv_online
+    print (check_tv_online(ctx.obj['config'].tv.address))
