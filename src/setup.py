@@ -3,14 +3,15 @@ from setuptools import find_packages, setup
 
 setup(
     name="viera2mqtt",
-    version="0.1.0",
+    version="0.2.0",
     packages=find_packages(),
     install_requires=[
-        "click>=7.0",
+        "click>=8.0",
         "panasonic_viera",
         'aiohttp',
         'paho-mqtt',
-        'requests'
+        'requests',
+        "python-consul"
     ],
     extras_require={"test": ["pytest", "pytest-mock"]},
     author="Ernest Czerwonka",

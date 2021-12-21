@@ -7,6 +7,11 @@ from .config import Config
 from pprint import pprint
 import paho.mqtt.client as mqtt
 from .mqtt import on_connect, on_message
+import consul
+import atexit
+
+
+
 
 @click.group()
 @click.option('--tv', '-t', default=os.environ.get('V2M_HOST', None), help='TV Hostname or ip')
@@ -50,6 +55,12 @@ def cli(ctx, tv, mqttbroker, mqttport, mqttprefix, authid, authkey):
     ctx.obj['config'].write()
 
 
+
+def deregisterService():
+    c = consul.Consul()
+    c.agent.service.deregister("viera2mqtt")
+
+
 @cli.command()
 @click.pass_context
 def start(ctx):
@@ -69,6 +80,14 @@ def start(ctx):
     logger.info(f'subscribe to "{set_topic}"')
 
     client.subscribe(set_topic, qos=1)
+
+    try:
+        c = consul.Consul()
+        b = c.agent.service.register("viera2mqtt")
+    except Exception as e:
+        logger.warning(f'Failed to register Consul service: {e}')
+    else:
+        atexit.register(deregisterService)
 
     client.loop_forever()
 
